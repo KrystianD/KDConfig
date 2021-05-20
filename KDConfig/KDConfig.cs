@@ -61,7 +61,7 @@ namespace KDConfig
 
     private static object CreateClassFromProvider(string basePath, Type type, IConfigDataProvider provider)
     {
-      var instance = Activator.CreateInstance(type)!;
+      var instance = Activator.CreateInstance(type);
       var options = GetClassOptions(type);
 
       foreach (var option in options) {

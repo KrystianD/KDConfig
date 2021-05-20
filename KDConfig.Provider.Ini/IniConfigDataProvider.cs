@@ -21,11 +21,11 @@ namespace KDConfig.Provider.Ini
     {
       var parts = dotPath.Split('.');
 
-      return parts.Length switch {
-          1 => _data.Global.FindByKey(parts[0])?.Value,
-          2 => _data.Sections.FindByName(parts[0])?.Properties.FindByKey(parts[1])?.Value,
-          _ => throw new Exception("invalid path"),
-      };
+      switch (parts.Length) {
+        case 1: return _data.Global.FindByKey(parts[0])?.Value;
+        case 2: return _data.Sections.FindByName(parts[0])?.Properties.FindByKey(parts[1])?.Value;
+        default: throw new Exception("invalid path");
+      }
     }
 
     public static IniConfigDataProvider FromString(string iniString)

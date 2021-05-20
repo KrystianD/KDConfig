@@ -21,11 +21,11 @@ namespace KDConfig.Provider.Yaml
     {
       var node = GetConfigNode(dotPath);
 
-      return node switch {
-          YamlScalarNode scalarNode => scalarNode.Value,
-          null => null,
-          _ => throw new Exception("scalar expected"),
-      };
+      switch (node) {
+        case YamlScalarNode scalarNode: return scalarNode.Value;
+        case null: return null;
+        default: throw new Exception("scalar expected");
+      }
     }
 
     private YamlNode GetConfigNode(string dotPath)
@@ -56,11 +56,12 @@ namespace KDConfig.Provider.Yaml
     private static YamlMappingNode CreateYamlMappingNodeFromString(string yamlStr)
     {
       var yaml = new YamlStream();
-      using var reader = new StringReader(yamlStr);
-      yaml.Load(reader);
-      if (yaml.Documents.Count == 0)
-        return null;
-      return (YamlMappingNode)yaml.Documents[0].RootNode;
+      using (var reader = new StringReader(yamlStr)) {
+        yaml.Load(reader);
+        if (yaml.Documents.Count == 0)
+          return null;
+        return (YamlMappingNode)yaml.Documents[0].RootNode;
+      }
     }
   }
 }
