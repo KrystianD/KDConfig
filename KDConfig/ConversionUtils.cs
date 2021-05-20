@@ -6,9 +6,12 @@ namespace KDConfig
   {
     public static bool IsNullable(this Type type)
     {
-      return 
-          type == typeof(string) ||
-          (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
+      return type == typeof(string) || IsGenericNullable(type);
+    }
+
+    public static bool IsGenericNullable(this Type type)
+    {
+      return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
     }
 
     public static Type GetNullableInnerType(this Type type)
@@ -21,20 +24,28 @@ namespace KDConfig
 
     public static bool IsScalarType(Type type)
     {
-      return type == typeof(int) ||
+      return type == typeof(short) ||
+             type == typeof(ushort) ||
+             type == typeof(int) ||
+             type == typeof(uint) ||
+             type == typeof(long) ||
+             type == typeof(ulong) ||
+             type == typeof(decimal) ||
              type == typeof(string) ||
-             IsScalarType(GetNullableInnerType(type));
+             (IsGenericNullable(type) && IsScalarType(GetNullableInnerType(type)));
     }
 
     public static object ParseStringToType(string value, Type targetType)
     {
-      if (targetType == typeof(int)) {
-        return int.Parse(value);
-      }
+      if (targetType == typeof(short)) return short.Parse(value);
+      if (targetType == typeof(ushort)) return ushort.Parse(value);
+      if (targetType == typeof(int)) return int.Parse(value);
+      if (targetType == typeof(uint)) return uint.Parse(value);
+      if (targetType == typeof(long)) return long.Parse(value);
+      if (targetType == typeof(ulong)) return ulong.Parse(value);
+      if (targetType == typeof(decimal)) return decimal.Parse(value);
 
-      if (targetType == typeof(string)) {
-        return value;
-      }
+      if (targetType == typeof(string)) return value;
 
       throw new Exception("invalid type");
     }
