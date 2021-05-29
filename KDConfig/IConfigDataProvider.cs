@@ -2,8 +2,8 @@ namespace KDConfig
 {
   public class NodeValue
   {
-    public object Value;
-    public int Line, Column;
+    public readonly object Value;
+    public readonly int Line, Column;
 
     public NodeValue(object value)
     {
