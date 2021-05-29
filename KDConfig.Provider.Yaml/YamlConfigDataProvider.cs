@@ -53,6 +53,13 @@ namespace KDConfig.Provider.Yaml
       return new YamlConfigDataProvider(node, null);
     }
 
+    public static YamlConfigDataProvider FromYamlFile(string path)
+    {
+      var content = File.ReadAllText(path);
+      var node = CreateYamlMappingNodeFromString(content);
+      return new YamlConfigDataProvider(node, Path.GetDirectoryName(path));
+    }
+
     private static YamlMappingNode CreateYamlMappingNodeFromString(string yamlStr)
     {
       var yaml = new YamlStream();
