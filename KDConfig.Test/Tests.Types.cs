@@ -13,6 +13,9 @@ namespace KDConfig.Test
   {
     private class TestTypesModel
     {
+      [ConfigValue("section.value_bool")]
+      public bool ValueBool;
+
       [ConfigValue("section.value_short")]
       public short ValueShort;
 
@@ -43,6 +46,7 @@ namespace KDConfig.Test
     {
       var cfg = ParseYaml<TestTypesModel>(@"
 section:
+  value_bool: true
   value_short: -123
   value_ushort: 123
   value_int: -1234567
@@ -52,6 +56,7 @@ section:
   value_dec: 12345678.1234
   value_str: abc
 ");
+      Assert.AreEqual(true, cfg.ValueBool);
       Assert.AreEqual(-123, cfg.ValueShort);
       Assert.AreEqual(123, cfg.ValueUShort);
       Assert.AreEqual(-1234567, cfg.ValueInt);

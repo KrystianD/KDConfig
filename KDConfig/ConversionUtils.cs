@@ -24,7 +24,8 @@ namespace KDConfig
 
     public static bool IsScalarType(Type type)
     {
-      return type == typeof(short) ||
+      return type == typeof(bool) ||
+             type == typeof(short) ||
              type == typeof(ushort) ||
              type == typeof(int) ||
              type == typeof(uint) ||
@@ -38,6 +39,23 @@ namespace KDConfig
     public static object ParseStringToType(string value, Type targetType)
     {
       try {
+        if (targetType == typeof(bool)) {
+          switch (value.ToLower()) {
+            case "y":
+            case "yes":
+            case "on":
+            case "true":
+              return true;
+            case "n":
+            case "no":
+            case "off":
+            case "false":
+              return false;
+            default:
+              throw new FormatException("invalid boolean value");
+          }
+        }
+
         if (targetType == typeof(short)) return short.Parse(value);
         if (targetType == typeof(ushort)) return ushort.Parse(value);
         if (targetType == typeof(int)) return int.Parse(value);
