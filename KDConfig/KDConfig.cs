@@ -112,37 +112,26 @@ namespace KDConfig
             node = scalarNode;
 
             if (scalarValue is "") {
-              if (option.IsRequired) {
-                switch (option.Attribute.EmptyHandling) {
-                  case EmptyHandling.NotAllowed:
-                    throw new InternalConfigException("empty value not allowed");
-                  case EmptyHandling.AsIs:
-                    break;
-                  case EmptyHandling.AsNull:
+              switch (option.Attribute.EmptyHandling) {
+                case EmptyHandling.NotAllowed:
+                  throw new InternalConfigException("empty value not allowed");
+                case EmptyHandling.AsIs:
+                  break;
+                case EmptyHandling.AsNull:
+                  if (option.IsRequired) {
                     throw new InternalConfigException("required option is not present");
-                  case EmptyHandling.UseDefaultValue:
-                    continue;
-                  default:
-                    throw new InternalConfigException("invalid EmptyHandling value");
-                }
-              }
-              else {
-                switch (option.Attribute.EmptyHandling) {
-                  case EmptyHandling.NotAllowed:
-                    throw new InternalConfigException("empty value not allowed");
-                  case EmptyHandling.AsIs:
-                    break;
-                  case EmptyHandling.AsNull:
+                  }
+                  else {
                     if (option.FieldType.IsNullable())
                       option.Field.SetValue(instance, null);
                     else
                       throw new InternalConfigException("unable to assign null to not nullable value");
-                    continue;
-                  case EmptyHandling.UseDefaultValue:
-                    continue;
-                  default:
-                    throw new InternalConfigException("invalid EmptyHandling value");
-                }
+                  }
+                  continue;
+                case EmptyHandling.UseDefaultValue:
+                  continue;
+                default:
+                  throw new InternalConfigException("invalid EmptyHandling value");
               }
             }
 
