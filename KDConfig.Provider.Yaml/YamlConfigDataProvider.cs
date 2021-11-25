@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using YamlDotNet.RepresentationModel;
 
 namespace KDConfig.Provider.Yaml
@@ -24,6 +25,10 @@ namespace KDConfig.Provider.Yaml
 
       switch (node) {
         case YamlScalarNode scalarNode: return new NodeValue(scalarNode.Value!, scalarNode.Start.Line, scalarNode.Start.Column);
+        case YamlSequenceNode sequenceNode:
+          return new NodeValue(sequenceNode.Children.Select(x => ((YamlScalarNode)x).Value!).ToArray(),
+                               sequenceNode.Start.Line,
+                               sequenceNode.Start.Column);
         case null: return null;
         default: throw new Exception("scalar expected");
       }

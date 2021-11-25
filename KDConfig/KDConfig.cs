@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -43,8 +44,10 @@ namespace KDConfig
     {
       if (Line == -1)
         return $"[{Path}] {Message}";
-      else
+      else if (Column == -1)
         return $"[{Path}] [line {Line}] {Message}";
+      else
+        return $"[{Path}] [line {Line} column {Column}] {Message}";
     }
   }
 
@@ -107,53 +110,16 @@ namespace KDConfig
         NodeValue? node = null;
         try {
           if (ConversionUtils.IsScalarType(fieldType)) {
-            var scalarNode = provider.GetScalar(path);
-            var scalarValue = scalarNode?.Value;
-            node = scalarNode;
+            var scalarNodeValue = provider.GetScalar(path);
+            node = scalarNodeValue;
 
-            if (scalarValue is "") {
-              switch (option.Attribute.EmptyHandling) {
-                case EmptyHandling.NotAllowed:
-                  throw new InternalConfigException("empty value not allowed");
-                case EmptyHandling.AsIs:
-                  break;
-                case EmptyHandling.AsNull:
-                  if (option.IsRequired) {
-                    throw new InternalConfigException("required option is not present");
-                  }
-                  else {
-                    if (option.FieldType.IsNullable())
-                      option.Field.SetValue(instance, null);
-                    else
-                      throw new InternalConfigException("unable to assign null to not nullable value");
-                  }
-                  continue;
-                case EmptyHandling.UseDefaultValue:
-                  continue;
-                default:
-                  throw new InternalConfigException("invalid EmptyHandling value");
-              }
-            }
+            ProcessSimpleOption(option, instance, scalarNodeValue, provider, errors);
+          }
+          else if (fieldType.IsArray && ConversionUtils.IsScalarType(fieldType.GetElementType())) {
+            var arrayNodeValue = provider.GetScalar(path);
+            node = arrayNodeValue;
 
-            if (scalarValue is null) {
-              if (option.IsRequired)
-                throw new InternalConfigException("required option is not present");
-            }
-            else {
-              if (provider.IsFixedType) {
-                throw new NotImplementedException();
-              }
-              else {
-                if (scalarValue is string scalarValueString) {
-                  var value = ConversionUtils.ParseStringToType(scalarValueString, fieldType);
-                  PostprocessValue(provider, option, ref value);
-                  option.Field.SetValue(instance, value);
-                }
-                else {
-                  throw new InternalConfigException("invalid conversion");
-                }
-              }
-            }
+            ProcessSimpleArrayOption(option, instance, arrayNodeValue, provider, errors);
           }
           else {
             var value = CreateClassFromProvider(path, fieldType, provider, errors);
@@ -170,6 +136,109 @@ namespace KDConfig
       }
 
       return instance;
+    }
+
+    private static void ProcessSimpleOption(OptionInstance option, object instance, NodeValue? scalarNode, IConfigDataProvider provider, List<Error> errors)
+    {
+      var scalarValue = scalarNode?.Value;
+
+      if (scalarValue is "") {
+        switch (option.Attribute.EmptyHandling) {
+          case EmptyHandling.NotAllowed:
+            throw new InternalConfigException("empty value not allowed");
+          case EmptyHandling.AsIs:
+            break;
+          case EmptyHandling.AsNull:
+            if (option.IsRequired) {
+              throw new InternalConfigException("required option is not present");
+            }
+            else {
+              if (option.FieldType.IsNullable())
+                option.Field.SetValue(instance, null);
+              else
+                throw new InternalConfigException("unable to assign null to not nullable value");
+            }
+
+            return;
+          case EmptyHandling.UseDefaultValue:
+            return;
+          default:
+            throw new InternalConfigException("invalid EmptyHandling value");
+        }
+      }
+
+      if (scalarValue is null) {
+        if (option.IsRequired)
+          throw new InternalConfigException("required option is not present");
+      }
+      else {
+        if (provider.IsFixedType) {
+          throw new NotImplementedException();
+        }
+        else {
+          if (scalarValue is string scalarValueString) {
+            var value = ConversionUtils.ParseStringToType(scalarValueString, option.FieldType);
+            PostprocessValue(provider, option, ref value);
+            option.Field.SetValue(instance, value);
+          }
+          else {
+            throw new InternalConfigException("invalid conversion");
+          }
+        }
+      }
+    }
+
+    private static void ProcessSimpleArrayOption(OptionInstance option, object instance, NodeValue? scalarNode, IConfigDataProvider provider, List<Error> errors)
+    {
+      var scalarValue = scalarNode?.Value;
+
+      if (scalarValue is "") {
+        switch (option.Attribute.EmptyHandling) {
+          case EmptyHandling.NotAllowed:
+            throw new InternalConfigException("empty value not allowed");
+          case EmptyHandling.AsIs:
+            scalarValue = Array.Empty<string>();
+            break;
+          case EmptyHandling.AsNull:
+            if (option.IsRequired) {
+              throw new InternalConfigException("required option is not present");
+            }
+            else {
+              option.Field.SetValue(instance, null);
+            }
+
+            return;
+          case EmptyHandling.UseDefaultValue:
+            return;
+          default:
+            throw new InternalConfigException("invalid EmptyHandling value");
+        }
+      }
+
+      if (scalarValue is null) {
+        if (option.IsRequired)
+          throw new InternalConfigException("required option is not present");
+      }
+      else {
+        if (provider.IsFixedType) {
+          throw new NotImplementedException();
+        }
+        else {
+          if (scalarValue is string[] scalarValueStringArray) {
+            var itemType = option.FieldType.GetElementType();
+
+            IList array = Array.CreateInstance(itemType, scalarValueStringArray.Length);
+            for (var i = 0; i < scalarValueStringArray.Length; i++) {
+              array[i] = ConversionUtils.ParseStringToType(scalarValueStringArray[i], itemType);
+            }
+
+            option.Field.SetValue(instance, array);
+          }
+          else {
+            throw new InternalConfigException("invalid conversion");
+          }
+        }
+      }
     }
 
     private static void PostprocessValue(IConfigDataProvider provider, OptionInstance option, ref object value)
