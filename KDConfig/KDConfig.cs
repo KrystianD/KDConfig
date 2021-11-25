@@ -122,6 +122,8 @@ namespace KDConfig
                     throw new InternalConfigException("required option is not present");
                   case EmptyHandling.UseDefaultValue:
                     continue;
+                  default:
+                    throw new InternalConfigException("invalid EmptyHandling value");
                 }
               }
               else {
@@ -138,6 +140,8 @@ namespace KDConfig
                     continue;
                   case EmptyHandling.UseDefaultValue:
                     continue;
+                  default:
+                    throw new InternalConfigException("invalid EmptyHandling value");
                 }
               }
             }
