@@ -10,7 +10,6 @@ namespace KDConfig
 
   public enum EmptyHandling
   {
-    Default,
     NotAllowed,
     AsIs,
     AsNull,
