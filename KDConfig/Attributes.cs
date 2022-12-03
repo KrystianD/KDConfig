@@ -17,6 +17,7 @@ namespace KDConfig
     UseDefaultValue,
   }
 
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
   public class ConfigValueAttribute : Attribute
   {
     public string Path { get; }
