@@ -9,12 +9,13 @@ namespace KDConfig.Provider.Ini
     public bool IsFixedType => false;
 
     private readonly IniData _data;
-    private readonly string _configDirectory;
+
+    public string? Directory { get; }
 
     private IniConfigDataProvider(IniData data, string configDirectory)
     {
       _data = data;
-      _configDirectory = configDirectory;
+      Directory = configDirectory;
     }
 
     public NodeValue GetScalar(string dotPath)

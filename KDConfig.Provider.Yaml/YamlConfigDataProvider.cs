@@ -9,12 +9,13 @@ namespace KDConfig.Provider.Yaml
     public bool IsFixedType => false;
 
     private readonly YamlMappingNode _node;
-    private readonly string _configDirectory;
+    
+    public string? Directory { get; }
 
-    public YamlConfigDataProvider(YamlMappingNode node, string configDirectory)
+    public YamlConfigDataProvider(YamlMappingNode node, string? configDirectory)
     {
       _node = node;
-      _configDirectory = configDirectory;
+      Directory = configDirectory;
     }
 
     public NodeValue GetScalar(string dotPath)
@@ -57,7 +58,7 @@ namespace KDConfig.Provider.Yaml
     {
       var content = File.ReadAllText(path);
       var node = CreateYamlMappingNodeFromString(content);
-      return new YamlConfigDataProvider(node, Path.GetDirectoryName(path));
+      return new YamlConfigDataProvider(node, Path.GetDirectoryName(Path.GetFullPath(path)));
     }
 
     private static YamlMappingNode CreateYamlMappingNodeFromString(string yamlStr)

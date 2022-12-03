@@ -22,5 +22,7 @@ namespace KDConfig
   {
     bool IsFixedType { get; }
     NodeValue GetScalar(string dotPath);
+
+    string? Directory { get; }
   }
 }
