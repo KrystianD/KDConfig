@@ -1,3 +1,4 @@
+using KDConfig.Attributes;
 using KDConfig.Provider.Ini;
 using NUnit.Framework;
 

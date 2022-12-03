@@ -1,3 +1,4 @@
+using KDConfig.Attributes;
 using NUnit.Framework;
 
 #pragma warning disable 649

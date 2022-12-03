@@ -1,4 +1,5 @@
 using System;
+using KDConfig.Attributes;
 using KDConfig.Provider.Yaml;
 using NUnit.Framework;
 
