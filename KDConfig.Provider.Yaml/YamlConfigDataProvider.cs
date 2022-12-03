@@ -17,12 +17,12 @@ namespace KDConfig.Provider.Yaml
       _configDirectory = configDirectory;
     }
 
-    public object GetScalar(string dotPath)
+    public NodeValue GetScalar(string dotPath)
     {
       var node = GetConfigNode(dotPath);
 
       switch (node) {
-        case YamlScalarNode scalarNode: return scalarNode.Value;
+        case YamlScalarNode scalarNode: return new NodeValue(scalarNode.Value,scalarNode.Start.Line, scalarNode.Start.Column);
         case null: return null;
         default: throw new Exception("scalar expected");
       }

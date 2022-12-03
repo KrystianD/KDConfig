@@ -22,7 +22,7 @@ namespace KDConfig.Test
     [Test]
     public void TestEmptyAsMissing()
     {
-      Assert.Throws<EmptyValueNotPermittedException>(() => {
+      Assert.Throws<ConfigException>(() => {
         ParseYaml<TestEmptyAsMissingModel>(@"value: ");
       });
     }
@@ -51,7 +51,7 @@ namespace KDConfig.Test
     [Test]
     public void TestEmptyAsIsNotNullable()
     {
-      Assert.Throws<FormatException>(() => {
+      Assert.Throws<ConfigException>(() => {
         ParseYaml<TestEmptyAsIsNotNullableModel>(@"value: ");
       });
     }
@@ -67,7 +67,7 @@ namespace KDConfig.Test
     [Test]
     public void TestEmptyAsNullNotNullable()
     {
-      Assert.Throws<InvalidConversionException>(() => {
+      Assert.Throws<ConfigException>(() => {
         ParseYaml<TestEmptyAsNullNotNullableModel>(@"value_nonnullable: ");
       });
     }

@@ -38,7 +38,7 @@ namespace KDConfig.Test
     [Test]
     public void TestRequiredMissing()
     {
-      Assert.Throws<MissingValueException>(() => {
+      Assert.Throws<ConfigException>(() => {
         ParseYaml<TestRequiredMissingModel>(@"");
       });
     }

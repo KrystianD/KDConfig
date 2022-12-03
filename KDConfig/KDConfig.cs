@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace KDConfig
@@ -19,6 +20,21 @@ namespace KDConfig
 
     public bool IsRequired => Attribute.Required == RequiredEnum.Required;
     public bool IsOptional => Attribute.Required == RequiredEnum.Optional;
+  }
+
+  public class Error
+  {
+    public string Path;
+    public int Line, Column;
+    public string Message;
+
+    public override string ToString()
+    {
+      if (Line == -1)
+        return $"[{Path}] {Message}";
+      else
+        return $"[{Path}] [line {Line}] {Message}";
+    }
   }
 
   public class KDConfig
@@ -55,11 +71,12 @@ namespace KDConfig
 
     public static T CreateFrom<T>(IConfigDataProvider provider) where T : new()
     {
-      var instance = CreateClassFromProvider("", typeof(T), provider);
+      var errors = new List<Error>();
+      var instance = CreateClassFromProvider("", typeof(T), provider, errors);
       return (T)instance;
     }
 
-    private static object CreateClassFromProvider(string basePath, Type type, IConfigDataProvider provider)
+    private static object CreateClassFromProvider(string basePath, Type type, IConfigDataProvider provider, List<Error> errors)
     {
       var instance = Activator.CreateInstance(type);
       var options = GetClassOptions(type);
@@ -71,66 +88,100 @@ namespace KDConfig
         if (basePath != "")
           path = basePath + "." + path;
 
-        if (ConversionUtils.IsScalarType(fieldType)) {
-          var scalarValue = provider.GetScalar(path);
+        NodeValue node = null;
+        try {
+          if (ConversionUtils.IsScalarType(fieldType)) {
+            var scalarNode = provider.GetScalar(path);
+            var scalarValue = scalarNode?.Value;
+            node = scalarNode;
 
-          if (scalarValue is "") {
-            if (option.IsRequired) {
-              switch (option.Attribute.EmptyHandling) {
-                case EmptyHandling.NotAllowed:
-                  throw new EmptyValueNotPermittedException();
-                case EmptyHandling.AsIs:
-                  break;
-                case EmptyHandling.AsNull:
-                  throw new MissingValueException();
-                case EmptyHandling.UseDefaultValue:
-                  continue;
-              }
-            }
-            else {
-              switch (option.Attribute.EmptyHandling) {
-                case EmptyHandling.NotAllowed:
-                  throw new EmptyValueNotPermittedException();
-                case EmptyHandling.AsIs:
-                  break;
-                case EmptyHandling.AsNull:
-                  if (option.FieldType.IsNullable())
-                    option.Field.SetValue(instance, null);
-                  else
-                    throw new InvalidConversionException();
-                  continue;
-                case EmptyHandling.UseDefaultValue:
-                  continue;
-              }
-            }
-          }
-
-          if (scalarValue is null) {
-            if (option.IsRequired)
-              throw new MissingValueException();
-          }
-          else {
-            if (provider.IsFixedType) {
-              throw new NotImplementedException();
-            }
-            else {
-              if (scalarValue is string scalarValueString) {
-                var value = ConversionUtils.ParseStringToType(scalarValueString, fieldType);
-                option.Field.SetValue(instance, value);
+            if (scalarValue is "") {
+              if (option.IsRequired) {
+                switch (option.Attribute.EmptyHandling) {
+                  case EmptyHandling.NotAllowed:
+                    throw new InternalConfigException("empty value not allowed");
+                  case EmptyHandling.AsIs:
+                    break;
+                  case EmptyHandling.AsNull:
+                    throw new InternalConfigException("required option is not present");
+                  case EmptyHandling.UseDefaultValue:
+                    continue;
+                }
               }
               else {
-                throw new InvalidConversionException();
+                switch (option.Attribute.EmptyHandling) {
+                  case EmptyHandling.NotAllowed:
+                    throw new InternalConfigException("empty value not allowed");
+                  case EmptyHandling.AsIs:
+                    break;
+                  case EmptyHandling.AsNull:
+                    if (option.FieldType.IsNullable())
+                      option.Field.SetValue(instance, null);
+                    else
+                      throw new InternalConfigException("unable to assign null to not nullable value");
+                    continue;
+                  case EmptyHandling.UseDefaultValue:
+                    continue;
+                }
+              }
+            }
+
+            if (scalarValue is null) {
+              if (option.IsRequired)
+                throw new InternalConfigException("required option is not present");
+            }
+            else {
+              if (provider.IsFixedType) {
+                throw new NotImplementedException();
+              }
+              else {
+                if (scalarValue is string scalarValueString) {
+                  var value = ConversionUtils.ParseStringToType(scalarValueString, fieldType);
+                  option.Field.SetValue(instance, value);
+                }
+                else {
+                  throw new InternalConfigException("invalid conversion");
+                }
               }
             }
           }
+          else {
+            var value = CreateClassFromProvider(path, fieldType, provider, errors);
+            option.Field.SetValue(instance, value);
+          }
         }
-        else {
-          var value = CreateClassFromProvider(path, fieldType, provider);
-          option.Field.SetValue(instance, value);
+        catch (InternalConfigException e) {
+          errors.Add(new Error() {
+              Path = path,
+              Line = node?.Line ?? -1,
+              Column = node?.Column ?? -1,
+              Message = e.Message,
+          });
         }
+      }
+
+      if (basePath == "" && errors.Count > 0) {
+        throw new ConfigException(errors);
       }
 
       return instance;
     }
+  }
+
+  public class InternalConfigException : Exception
+  {
+    public InternalConfigException(string message) : base(message) { }
+  }
+
+  public class ConfigException : Exception
+  {
+    public List<Error> Errors { get; }
+
+    public ConfigException(List<Error> errors)
+    {
+      Errors = errors;
+    }
+
+    public override string ToString() => string.Join("\n", Errors.Select(x => x.ToString()));
   }
 }

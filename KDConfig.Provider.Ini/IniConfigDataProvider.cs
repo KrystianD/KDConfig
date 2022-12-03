@@ -17,13 +17,13 @@ namespace KDConfig.Provider.Ini
       _configDirectory = configDirectory;
     }
 
-    public object GetScalar(string dotPath)
+    public NodeValue GetScalar(string dotPath)
     {
       var parts = dotPath.Split('.');
 
       switch (parts.Length) {
-        case 1: return _data.Global.FindByKey(parts[0])?.Value;
-        case 2: return _data.Sections.FindByName(parts[0])?.Properties.FindByKey(parts[1])?.Value;
+        case 1: return new NodeValue(_data.Global.FindByKey(parts[0])?.Value);
+        case 2: return new NodeValue(_data.Sections.FindByName(parts[0])?.Properties.FindByKey(parts[1])?.Value);
         default: throw new Exception("invalid path");
       }
     }
