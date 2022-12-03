@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace KDConfig
 {
@@ -26,6 +27,7 @@ namespace KDConfig
     public bool IsOptional => Attribute.Required == RequiredEnum.Optional;
   }
 
+  [PublicAPI]
   public class Error
   {
     public string Path;

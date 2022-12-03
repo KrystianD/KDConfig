@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 
 namespace KDConfig
 {
@@ -16,6 +17,7 @@ namespace KDConfig
     UseDefaultValue,
   }
 
+  [PublicAPI]
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
   public class ConfigValueAttribute : Attribute
   {
@@ -44,6 +46,7 @@ namespace KDConfig
     Directory,
   }
 
+  [PublicAPI]
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
   public class ConfigPathAttribute : Attribute
   {
