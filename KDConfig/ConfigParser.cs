@@ -55,11 +55,13 @@ namespace KDConfig
     }
   }
 
+  [PublicAPI]
   public class InternalConfigException : Exception
   {
     public InternalConfigException(string message) : base(message) { }
   }
 
+  [PublicAPI]
   public class ConfigException : Exception
   {
     public List<Error> Errors { get; }
