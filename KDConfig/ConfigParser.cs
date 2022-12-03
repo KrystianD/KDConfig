@@ -11,10 +11,10 @@ namespace KDConfig
 {
   public class OptionInstance
   {
-    public Type FieldType;
-    public ConfigValueAttribute Attribute;
-    public ConfigPathAttribute? PathAttribute;
-    public FieldInfo Field;
+    public readonly Type FieldType;
+    public readonly ConfigValueAttribute Attribute;
+    public readonly ConfigPathAttribute? PathAttribute;
+    public readonly FieldInfo Field;
 
     public OptionInstance(Type fieldType, ConfigValueAttribute attribute, ConfigPathAttribute? pathAttribute, FieldInfo field)
     {
@@ -31,9 +31,10 @@ namespace KDConfig
   [PublicAPI]
   public class Error
   {
-    public string Path;
-    public int Line, Column;
-    public string Message;
+    public readonly string Path;
+    public readonly int Line;
+    public readonly int Column;
+    public readonly string Message;
 
     public Error(string path, int line, int column, string message)
     {
