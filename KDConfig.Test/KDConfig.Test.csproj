@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="NUnit" Version="3.12.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\KDConfig.Provider.Ini\KDConfig.Provider.Ini.csproj" />
+      <ProjectReference Include="..\KDConfig.Provider.Yaml\KDConfig.Provider.Yaml.csproj" />
+      <ProjectReference Include="..\KDConfig\KDConfig.csproj" />
+    </ItemGroup>
+
+</Project>

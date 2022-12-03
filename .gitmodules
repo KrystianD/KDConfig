@@ -1,0 +1,2 @@
+[submodule "third-party/ini-parser"]
+	url = https://github.com/KrystianD-contribution/ini-parser
