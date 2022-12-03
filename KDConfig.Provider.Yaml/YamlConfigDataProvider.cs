@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using YamlDotNet.RepresentationModel;
 
 namespace KDConfig.Provider.Yaml
@@ -37,7 +38,37 @@ namespace KDConfig.Provider.Yaml
       }
     }
 
-    private YamlNode? GetConfigNode(string dotPath)
+    public bool TryGetScalar(string dotPath, out NodeValue? value)
+    {
+      var node = GetConfigNode(dotPath);
+
+      switch (node) {
+        case YamlScalarNode scalarNode:
+          value = new NodeValue(scalarNode.Value!, scalarNode.Start.Line, scalarNode.Start.Column);
+          return true;
+        case YamlSequenceNode sequenceNode:
+          value = new NodeValue(sequenceNode.Children.Select(x => ((YamlScalarNode)x).Value!).ToArray(),
+                                sequenceNode.Start.Line,
+                                sequenceNode.Start.Column);
+          return true;
+        default:
+          value = null;
+          return false;
+      }
+    }
+
+    public int GetArrayLength(string dotPath)
+    {
+      var node = GetConfigNode(dotPath);
+
+      switch (node) {
+        case YamlSequenceNode sequenceNode:
+          return sequenceNode.Children.Count;
+        default: throw new Exception("sequence node expected");
+      }
+    }
+
+    public YamlNode? GetConfigNode(string dotPath)
     {
       if (_node == null)
         return null;
@@ -47,6 +78,16 @@ namespace KDConfig.Provider.Yaml
         if (curNode is YamlMappingNode n) {
           if (!n.Children.TryGetValue(p, out curNode))
             return null;
+        }
+        else if (curNode is YamlSequenceNode s) {
+          var m = Regex.Match(p, @"\[(\d+)\]");
+          if (m.Success) {
+            int idx = int.Parse(m.Groups[1].Value);
+            curNode = s.Children[idx];
+          }
+          else {
+            throw new Exception($"Invalid array index /{dotPath}/, part /{p}/");
+          }
         }
         else {
           throw new Exception($"Unknown node path /{dotPath}/");

@@ -123,6 +123,9 @@ namespace KDConfig
 
             ProcessSimpleArrayOption(option, instance, arrayNodeValue, provider, errors);
           }
+          else if (fieldType.IsArray) {
+            ProcessComplexArrayOption(option, instance, path, provider, errors);
+          }
           else {
             var value = CreateClassFromProvider(path, fieldType, provider, errors);
             option.Field.SetValue(instance, value);
@@ -241,6 +244,21 @@ namespace KDConfig
           }
         }
       }
+    }
+
+
+    private static void ProcessComplexArrayOption(OptionInstance option, object instance, string path, IConfigDataProvider provider, List<Error> errors)
+    {
+      var arrayLength = provider.GetArrayLength(path);
+
+      var itemType = option.FieldType.GetElementType();
+
+      IList array = Array.CreateInstance(itemType, arrayLength);
+      for (int i = 0; i < arrayLength; i++) {
+        array[i] = CreateClassFromProvider($"{path}.[{i}]", itemType, provider, errors);
+      }
+
+      option.Field.SetValue(instance, array);
     }
 
     private static void PostprocessValue(IConfigDataProvider provider, OptionInstance option, ref object value)

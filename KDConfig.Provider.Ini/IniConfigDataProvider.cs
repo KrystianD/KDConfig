@@ -29,6 +29,16 @@ namespace KDConfig.Provider.Ini
       }
     }
 
+    public bool TryGetScalar(string dotPath, out NodeValue? value)
+    {
+      throw new NotSupportedException();
+    }
+
+    public int GetArrayLength(string dotPath)
+    {
+      throw new NotSupportedException();
+    }
+
     public static IniConfigDataProvider FromString(string iniString)
     {
       var parser = new IniDataParser();
