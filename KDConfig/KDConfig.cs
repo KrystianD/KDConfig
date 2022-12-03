@@ -31,6 +31,14 @@ namespace KDConfig
     public int Line, Column;
     public string Message;
 
+    public Error(string path, int line, int column, string message)
+    {
+      Path = path;
+      Line = line;
+      Column = column;
+      Message = message;
+    }
+
     public override string ToString()
     {
       if (Line == -1)
@@ -160,12 +168,7 @@ namespace KDConfig
           }
         }
         catch (InternalConfigException e) {
-          errors.Add(new Error() {
-              Path = path,
-              Line = node?.Line ?? -1,
-              Column = node?.Column ?? -1,
-              Message = e.Message,
-          });
+          errors.Add(new Error(path, node?.Line ?? -1, node?.Column ?? -1, e.Message));
         }
       }
 
