@@ -132,13 +132,13 @@ namespace KDConfig
             var scalarNodeValue = provider.GetScalar(path);
             node = scalarNodeValue;
 
-            ProcessSimpleOption(option, instance, scalarNodeValue, provider, errors);
+            ProcessSimpleOption(option, instance, scalarNodeValue, provider);
           }
           else if (fieldType.IsArray && ConversionUtils.IsScalarType(fieldType.GetElementType())) {
             var arrayNodeValue = provider.GetScalar(path);
             node = arrayNodeValue;
 
-            ProcessSimpleArrayOption(option, instance, arrayNodeValue, provider, errors);
+            ProcessSimpleArrayOption(option, instance, arrayNodeValue, provider);
           }
           else if (fieldType.IsArray) {
             ProcessComplexArrayOption(option, instance, path, provider, errors);
@@ -160,7 +160,7 @@ namespace KDConfig
       return instance;
     }
 
-    private static void ProcessSimpleOption(OptionInstance option, object instance, NodeValue? scalarNode, IConfigDataProvider provider, List<Error> errors)
+    private static void ProcessSimpleOption(OptionInstance option, object instance, NodeValue? scalarNode, IConfigDataProvider provider)
     {
       var scalarValue = scalarNode?.Value;
 
@@ -210,7 +210,7 @@ namespace KDConfig
       }
     }
 
-    private static void ProcessSimpleArrayOption(OptionInstance option, object instance, NodeValue? scalarNode, IConfigDataProvider provider, List<Error> errors)
+    private static void ProcessSimpleArrayOption(OptionInstance option, object instance, NodeValue? scalarNode, IConfigDataProvider provider)
     {
       var scalarValue = scalarNode?.Value;
 
