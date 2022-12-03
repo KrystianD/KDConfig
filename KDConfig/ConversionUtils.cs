@@ -37,17 +37,22 @@ namespace KDConfig
 
     public static object ParseStringToType(string value, Type targetType)
     {
-      if (targetType == typeof(short)) return short.Parse(value);
-      if (targetType == typeof(ushort)) return ushort.Parse(value);
-      if (targetType == typeof(int)) return int.Parse(value);
-      if (targetType == typeof(uint)) return uint.Parse(value);
-      if (targetType == typeof(long)) return long.Parse(value);
-      if (targetType == typeof(ulong)) return ulong.Parse(value);
-      if (targetType == typeof(decimal)) return decimal.Parse(value);
+      try {
+        if (targetType == typeof(short)) return short.Parse(value);
+        if (targetType == typeof(ushort)) return ushort.Parse(value);
+        if (targetType == typeof(int)) return int.Parse(value);
+        if (targetType == typeof(uint)) return uint.Parse(value);
+        if (targetType == typeof(long)) return long.Parse(value);
+        if (targetType == typeof(ulong)) return ulong.Parse(value);
+        if (targetType == typeof(decimal)) return decimal.Parse(value);
 
-      if (targetType == typeof(string)) return value;
+        if (targetType == typeof(string)) return value;
 
-      throw new Exception("invalid type");
+        throw new FormatException("unsupported type");
+      }
+      catch (FormatException) {
+        throw new InternalConfigException($"invalid value, got: /{value}/, expected {targetType}");
+      }
     }
   }
 }
