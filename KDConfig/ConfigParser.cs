@@ -53,7 +53,24 @@ namespace KDConfig
     }
   }
 
-  public class KDConfig
+  public class InternalConfigException : Exception
+  {
+    public InternalConfigException(string message) : base(message) { }
+  }
+
+  public class ConfigException : Exception
+  {
+    public List<Error> Errors { get; }
+
+    public ConfigException(List<Error> errors)
+    {
+      Errors = errors;
+    }
+
+    public override string ToString() => string.Join("\n", Errors.Select(x => x.ToString()));
+  }
+
+  public static class ConfigParser
   {
     private static List<OptionInstance> GetClassOptions(Type type)
     {
@@ -289,22 +306,5 @@ namespace KDConfig
         value = valueStr;
       }
     }
-  }
-
-  public class InternalConfigException : Exception
-  {
-    public InternalConfigException(string message) : base(message) { }
-  }
-
-  public class ConfigException : Exception
-  {
-    public List<Error> Errors { get; }
-
-    public ConfigException(List<Error> errors)
-    {
-      Errors = errors;
-    }
-
-    public override string ToString() => string.Join("\n", Errors.Select(x => x.ToString()));
   }
 }

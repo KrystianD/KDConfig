@@ -13,7 +13,7 @@ namespace KDConfig.Test
 {
   public partial class Tests
   {
-    private T ParseYaml<T>(string yaml) where T : new() => KDConfig.CreateFrom<T>(YamlConfigDataProvider.FromYamlString(yaml));
+    private T ParseYaml<T>(string yaml) where T : new() => ConfigParser.CreateFrom<T>(YamlConfigDataProvider.FromYamlString(yaml));
 
     #region TestSimple
     private class TestSimpleModel

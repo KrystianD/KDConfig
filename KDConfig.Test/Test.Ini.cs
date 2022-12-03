@@ -12,7 +12,7 @@ namespace KDConfig.Test
 {
   public class TestsIni
   {
-    private T ParseIni<T>(string yaml) where T : new() => KDConfig.CreateFrom<T>(IniConfigDataProvider.FromString(yaml));
+    private T ParseIni<T>(string yaml) where T : new() => ConfigParser.CreateFrom<T>(IniConfigDataProvider.FromString(yaml));
 
     private class Model
     {
