@@ -24,13 +24,16 @@ namespace KDConfig.Provider.Yaml
       var node = GetConfigNode(dotPath);
 
       switch (node) {
-        case YamlScalarNode scalarNode: return new NodeValue(scalarNode.Value!, scalarNode.Start.Line, scalarNode.Start.Column);
+        case YamlScalarNode scalarNode:
+          return new NodeValue(scalarNode.Value!, scalarNode.Start.Line, scalarNode.Start.Column);
         case YamlSequenceNode sequenceNode:
           return new NodeValue(sequenceNode.Children.Select(x => ((YamlScalarNode)x).Value!).ToArray(),
                                sequenceNode.Start.Line,
                                sequenceNode.Start.Column);
-        case null: return null;
-        default: throw new Exception("scalar expected");
+        case null:
+          return null;
+        default:
+          throw new Exception("scalar expected");
       }
     }
 
