@@ -16,7 +16,7 @@ namespace KDConfig
   {
     public static IList CreateListInstance(Type itemType)
     {
-      return (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+      return (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType))!;
     }
   }
 }
