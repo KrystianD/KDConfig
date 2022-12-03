@@ -8,28 +8,28 @@ namespace KDConfig.Provider.Yaml
   {
     public bool IsFixedType => false;
 
-    private readonly YamlMappingNode _node;
-    
+    private readonly YamlMappingNode? _node;
+
     public string? Directory { get; }
 
-    public YamlConfigDataProvider(YamlMappingNode node, string? configDirectory)
+    public YamlConfigDataProvider(YamlMappingNode? node, string? configDirectory)
     {
       _node = node;
       Directory = configDirectory;
     }
 
-    public NodeValue GetScalar(string dotPath)
+    public NodeValue? GetScalar(string dotPath)
     {
       var node = GetConfigNode(dotPath);
 
       switch (node) {
-        case YamlScalarNode scalarNode: return new NodeValue(scalarNode.Value,scalarNode.Start.Line, scalarNode.Start.Column);
+        case YamlScalarNode scalarNode: return new NodeValue(scalarNode.Value!, scalarNode.Start.Line, scalarNode.Start.Column);
         case null: return null;
         default: throw new Exception("scalar expected");
       }
     }
 
-    private YamlNode GetConfigNode(string dotPath)
+    private YamlNode? GetConfigNode(string dotPath)
     {
       if (_node == null)
         return null;
@@ -61,7 +61,7 @@ namespace KDConfig.Provider.Yaml
       return new YamlConfigDataProvider(node, Path.GetDirectoryName(Path.GetFullPath(path)));
     }
 
-    private static YamlMappingNode CreateYamlMappingNodeFromString(string yamlStr)
+    private static YamlMappingNode? CreateYamlMappingNodeFromString(string yamlStr)
     {
       var yaml = new YamlStream();
       using (var reader = new StringReader(yamlStr)) {

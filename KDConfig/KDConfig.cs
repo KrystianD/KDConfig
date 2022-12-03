@@ -13,7 +13,7 @@ namespace KDConfig
     public ConfigPathAttribute? PathAttribute;
     public FieldInfo Field;
 
-    public OptionInstance(Type fieldType, ConfigValueAttribute attribute, ConfigPathAttribute pathAttribute, FieldInfo field)
+    public OptionInstance(Type fieldType, ConfigValueAttribute attribute, ConfigPathAttribute? pathAttribute, FieldInfo field)
     {
       FieldType = fieldType;
       Attribute = attribute;
@@ -86,7 +86,7 @@ namespace KDConfig
 
     private static object CreateClassFromProvider(string basePath, Type type, IConfigDataProvider provider, List<Error> errors)
     {
-      var instance = Activator.CreateInstance(type);
+      var instance = Activator.CreateInstance(type)!;
       var options = GetClassOptions(type);
 
       foreach (var option in options) {
@@ -96,7 +96,7 @@ namespace KDConfig
         if (basePath != "")
           path = basePath + "." + path;
 
-        NodeValue node = null;
+        NodeValue? node = null;
         try {
           if (ConversionUtils.IsScalarType(fieldType)) {
             var scalarNode = provider.GetScalar(path);

@@ -21,7 +21,7 @@ namespace KDConfig
   public interface IConfigDataProvider
   {
     bool IsFixedType { get; }
-    NodeValue GetScalar(string dotPath);
+    NodeValue? GetScalar(string dotPath);
 
     string? Directory { get; }
   }
